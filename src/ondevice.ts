@@ -123,9 +123,15 @@ function findBrand(text: string, compact: string): string {
     if (p.keywords.some((k) => nameMatchesKeyword(text, k) || (HANGUL.test(k) && compact.includes(k)))) return p.brand
   }
   // 정확히 맞는 브랜드가 없을 때만 오인식 허용 매칭 (3자 이상 영문 키워드만 — 짧은 키워드 오탐 방지)
+  // 앞뒤가 숫자·하이픈이면 제외 → 전화번호 "02-6525-1234"가 GS25로 잡히지 않게
   const looked = toLookalike(text)
   for (const p of BRAND_PRESETS) {
-    if (p.keywords.some((k) => ASCII_KEYWORD.test(k) && nameMatchesKeyword(looked, toLookalike(k)))) return p.brand
+    const hit = p.keywords.some((k) => {
+      if (!ASCII_KEYWORD.test(k)) return false
+      const lk = toLookalike(k).replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')
+      return new RegExp(`(^|[^a-z0-9-])${lk}($|[^a-z0-9-])`).test(looked)
+    })
+    if (hit) return p.brand
   }
   return ''
 }
