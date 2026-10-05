@@ -113,9 +113,19 @@ function findExpiry(text: string): string {
   return dates[dates.length - 1] ?? ''
 }
 
+/** 한국어 OCR이 영문을 닮은 숫자로 읽는 경우(GS25→6525, O→0, I/L→1)를 같은 글자로 취급 */
+const LOOKALIKE: Record<string, string> = { g: '6', s: '5', o: '0', i: '1', l: '1', b: '8', z: '2' }
+const toLookalike = (s: string) => s.toLowerCase().replace(/[gsoilbz]/g, (c) => LOOKALIKE[c])
+const ASCII_KEYWORD = /^[a-z0-9-]{3,}$/
+
 function findBrand(text: string, compact: string): string {
   for (const p of BRAND_PRESETS) {
     if (p.keywords.some((k) => nameMatchesKeyword(text, k) || (HANGUL.test(k) && compact.includes(k)))) return p.brand
+  }
+  // 정확히 맞는 브랜드가 없을 때만 오인식 허용 매칭 (3자 이상 영문 키워드만 — 짧은 키워드 오탐 방지)
+  const looked = toLookalike(text)
+  for (const p of BRAND_PRESETS) {
+    if (p.keywords.some((k) => ASCII_KEYWORD.test(k) && nameMatchesKeyword(looked, toLookalike(k)))) return p.brand
   }
   return ''
 }
