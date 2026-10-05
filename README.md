@@ -2,6 +2,10 @@
 
 근처 매장에 도착하면 잊고 있던 멤버십·쿠폰을 알려주는 스마트 지갑 도우미 (웹앱/PWA 데모).
 
+**데모: https://ckalswl26.github.io/benefit-radar/**
+
+폰(Chrome)에서 열고 메뉴 → **홈 화면에 추가**하면 앱처럼 쓸 수 있어요. `main`에 push하면 GitHub Actions가 자동으로 다시 배포합니다.
+
 ## 기능
 
 | 화면 | 내용 |
